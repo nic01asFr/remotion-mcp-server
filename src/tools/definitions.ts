@@ -1,97 +1,33 @@
 /**
  * MCP Tools Definitions
  * 
- * Tools pour le rendu vidéo et la gestion des templates.
+ * Outils simplifiés pour le rendu vidéo Remotion.
  */
 
 export const tools = [
-  // ============================================================================
-  // TEMPLATE MANAGEMENT TOOLS
-  // ============================================================================
-  {
-    name: 'remotion_create_template',
-    description: `Create a new Remotion video template from React/TypeScript code.
-
-The template must export a 'Main' component that receives { scenes, theme } props.
-
-Before creating a template, read the documentation resources:
-- remotion://docs/getting-started
-- remotion://docs/api
-- remotion://examples/full-template`,
-    inputSchema: {
-      type: 'object',
-      properties: {
-        name: {
-          type: 'string',
-          description: 'Template name (slug, e.g., "corporate-intro")',
-        },
-        description: {
-          type: 'string',
-          description: 'What this template does',
-        },
-        code: {
-          type: 'string',
-          description: 'React/Remotion component code (TSX). Must export Main component.',
-        },
-        inputSchema: {
-          type: 'object',
-          description: 'JSON Schema describing the expected inputProps',
-        },
-      },
-      required: ['name', 'code'],
-    },
-  },
-  {
-    name: 'remotion_list_templates',
-    description: 'List all available video templates with their metadata and input schemas',
-    inputSchema: {
-      type: 'object',
-      properties: {},
-    },
-  },
-  {
-    name: 'remotion_get_template',
-    description: 'Get a template details including its source code',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        name: {
-          type: 'string',
-          description: 'Template name',
-        },
-      },
-      required: ['name'],
-    },
-  },
-  {
-    name: 'remotion_delete_template',
-    description: 'Delete a custom template (cannot delete "universal")',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        name: {
-          type: 'string',
-          description: 'Template name to delete',
-        },
-      },
-      required: ['name'],
-    },
-  },
-
   // ============================================================================
   // RENDER TOOLS
   // ============================================================================
   {
     name: 'remotion_render_video',
-    description: 'Generate a video from scenes and theme. Returns a URL to the rendered video.',
+    description: `Generate a professional video from scenes. Returns a URL to the rendered video.
+
+Available scene types:
+- "title": Big title with optional subtitle (content: title, subtitle, animation)
+- "text": Text content with styling (content: title, subtitle, text, variant: dark|light)
+- "counter": Animated number counter (content: value, suffix, label)
+- "image": Display an image with Ken Burns effect (content: url, animation: zoom-in|zoom-out|pan)
+- "split": Image + text side by side (content: title, subtitle, imageUrl, imagePosition: left|right)
+- "list": Animated bullet points (content: title, items: string[])
+- "stats": Multiple statistics (content: stats: [{value, label}])
+- "intro": Logo/brand intro (content: title, subtitle, logoUrl)
+- "outro": Closing with CTA (content: title, subtitle, text, cta)
+- "cta": Call-to-action with QR code (content: title, subtitle, url, qrCode: boolean, qrSize, qrPosition)
+
+Animation options for text: "fade", "slide", "scale", "typewriter"`,
     inputSchema: {
       type: 'object',
       properties: {
-        template: {
-          type: 'string',
-          description: 'Template to use (default: "universal"). Use remotion_list_templates to see options.',
-          default: 'universal',
-        },
         scenes: {
           type: 'array',
           description: 'List of scenes to compose into a video',
@@ -100,7 +36,7 @@ Before creating a template, read the documentation resources:
             properties: {
               type: {
                 type: 'string',
-                enum: ['text', 'image', 'video', 'split', 'outro'],
+                enum: ['title', 'text', 'counter', 'image', 'split', 'list', 'stats', 'intro', 'outro', 'cta'],
                 description: 'Type of scene',
               },
               duration: {
@@ -111,11 +47,72 @@ Before creating a template, read the documentation resources:
                 type: 'object',
                 description: 'Scene-specific content',
                 properties: {
-                  title: { type: 'string' },
-                  subtitle: { type: 'string' },
-                  text: { type: 'string' },
-                  url: { type: 'string' },
-                  animation: { type: 'string' },
+                  // Text content
+                  title: { type: 'string', description: 'Main title text' },
+                  subtitle: { type: 'string', description: 'Subtitle text' },
+                  text: { type: 'string', description: 'Body text' },
+                  
+                  // Media
+                  url: { type: 'string', description: 'Image or video URL' },
+                  imageUrl: { type: 'string', description: 'Image URL for split scenes' },
+                  logoUrl: { type: 'string', description: 'Logo URL for intro' },
+                  
+                  // Counter
+                  value: { type: 'string', description: 'Number value for counter' },
+                  suffix: { type: 'string', description: 'Suffix after number (e.g., "+", "%")' },
+                  prefix: { type: 'string', description: 'Prefix before number' },
+                  label: { type: 'string', description: 'Label below counter' },
+                  
+                  // List
+                  items: { 
+                    type: 'array', 
+                    items: { type: 'string' },
+                    description: 'List items for list scene' 
+                  },
+                  
+                  // Stats
+                  stats: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      properties: {
+                        value: { type: 'string' },
+                        label: { type: 'string' },
+                        suffix: { type: 'string' },
+                      },
+                    },
+                    description: 'Statistics for stats scene',
+                  },
+                  
+                  // CTA
+                  cta: { type: 'string', description: 'Call-to-action button text' },
+                  
+                  // QR Code
+                  qrCode: { type: 'boolean', description: 'Show QR code (for cta scene)' },
+                  qrSize: { type: 'number', description: 'QR code size in pixels (default: 180)' },
+                  qrPosition: { type: 'string', enum: ['left', 'right', 'center'], description: 'QR code position' },
+                  
+                  // Styling
+                  variant: { 
+                    type: 'string', 
+                    enum: ['dark', 'light'],
+                    description: 'Color variant (dark or light background)',
+                  },
+                  titleColor: { type: 'string', description: 'Title color override (hex)' },
+                  
+                  // Animation
+                  animation: { 
+                    type: 'string',
+                    enum: ['fade', 'slide', 'scale', 'typewriter', 'zoom-in', 'zoom-out', 'pan'],
+                    description: 'Animation type',
+                  },
+                  
+                  // Position
+                  imagePosition: {
+                    type: 'string',
+                    enum: ['left', 'right'],
+                    description: 'Image position for split scenes',
+                  },
                 },
               },
             },
@@ -126,8 +123,8 @@ Before creating a template, read the documentation resources:
           type: 'object',
           description: 'Visual theme for the video',
           properties: {
-            primaryColor: { type: 'string', description: 'Primary color (hex)' },
-            secondaryColor: { type: 'string', description: 'Secondary color (hex)' },
+            primaryColor: { type: 'string', description: 'Primary/accent color (hex)' },
+            secondaryColor: { type: 'string', description: 'Secondary text color (hex)' },
             backgroundColor: { type: 'string', description: 'Background color (hex)' },
             fontFamily: { type: 'string', description: 'Font family name' },
           },
@@ -136,9 +133,9 @@ Before creating a template, read the documentation resources:
           type: 'object',
           description: 'Render settings',
           properties: {
-            width: { type: 'number', default: 1920 },
-            height: { type: 'number', default: 1080 },
-            fps: { type: 'number', default: 30 },
+            width: { type: 'number', default: 1920, description: 'Video width' },
+            height: { type: 'number', default: 1080, description: 'Video height' },
+            fps: { type: 'number', default: 30, description: 'Frames per second' },
             format: { type: 'string', enum: ['mp4', 'webm', 'gif'], default: 'mp4' },
           },
         },
@@ -156,7 +153,10 @@ Before creating a template, read the documentation resources:
           type: 'object',
           description: 'Scene to render as image',
           properties: {
-            type: { type: 'string', enum: ['text', 'image', 'split', 'outro'] },
+            type: { 
+              type: 'string', 
+              enum: ['title', 'text', 'counter', 'image', 'split', 'list', 'stats', 'intro', 'outro'],
+            },
             duration: { type: 'number' },
             content: { type: 'object' },
           },
@@ -176,13 +176,8 @@ Before creating a template, read the documentation resources:
         },
         frame: {
           type: 'number',
-          description: 'Frame number to render (default: 0)',
-          default: 0,
-        },
-        template: {
-          type: 'string',
-          description: 'Template to use (default: "universal")',
-          default: 'universal',
+          description: 'Frame number to render (default: 15 for fade-in visibility)',
+          default: 15,
         },
       },
       required: ['scene'],
@@ -190,7 +185,7 @@ Before creating a template, read the documentation resources:
   },
   {
     name: 'remotion_status',
-    description: 'Get service status: output handler, templates count, render config',
+    description: 'Get service status: output handler configuration, supported scene types, and render settings',
     inputSchema: {
       type: 'object',
       properties: {},

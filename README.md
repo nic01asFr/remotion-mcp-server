@@ -120,11 +120,18 @@ AI assistants can read these to learn Remotion:
 
 ## Scene Types
 
-| Type | Content Properties |
-|------|-------------------|
-| `text` | `title`, `subtitle` |
-| `image` | `url`, `animation` ("zoom-in" or "zoom-out") |
-| `outro` | `text` |
+| Type | Description | Content Properties |
+|------|-------------|-------------------|
+| `title` | Big title with animation | `title`, `subtitle`, `animation` |
+| `text` | Text content with styling | `title`, `subtitle`, `text`, `variant` |
+| `counter` | Animated number counter | `value`, `suffix`, `prefix`, `label` |
+| `image` | Image with Ken Burns effect | `url`, `animation` (zoom-in/zoom-out/pan) |
+| `split` | Image + text side by side | `title`, `subtitle`, `imageUrl`, `imagePosition` |
+| `list` | Animated bullet points | `title`, `items[]` |
+| `stats` | Multiple statistics | `title`, `stats[]` (value, label, suffix) |
+| `intro` | Logo/brand intro | `title`, `subtitle`, `logoUrl` |
+| `outro` | Closing with CTA | `title`, `subtitle`, `text`, `cta` |
+| `cta` | Call-to-action with QR code | `title`, `subtitle`, `url`, `qrCode`, `qrSize`, `qrPosition` |
 
 ## Theme Properties
 

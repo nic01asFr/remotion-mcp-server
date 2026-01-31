@@ -4,6 +4,9 @@ node_modules/
 # Build output
 dist/
 
+# Remotion template bundles (generated)
+templates/*/bundle/
+
 # Remotion temp files
 .remotion/
 remotion-temp/
